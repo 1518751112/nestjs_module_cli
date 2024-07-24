@@ -1,0 +1,18 @@
+{
+  "apps": [
+    {
+      "name": "demo",
+      "script": "./dist/main.js",
+      "cwd": "",
+      "exec_mode": "cluster",
+      "instances": 0,
+      "autorestart": true,
+      "node_args": [],
+      "instance_var": "INSTANCE_ID",
+      "args": [],
+      "env": {
+        "RUN_ENV":"config.yaml"
+      }
+    }
+  ]
+}

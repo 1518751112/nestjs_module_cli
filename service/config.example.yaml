@@ -1,0 +1,43 @@
+# 每个项目，PORT和APP_NAME、HOME_PATH、DB_DATABASE必须修改
+appConfig:
+  port: 8888 # 项目端口
+  name: 'demo' # 项目名称
+  env: 'dev' # 项目环境
+  key: 'DeruwIcgWve12216iZHR0QKBmo4qd9L' # 项目秘钥
+
+# 数据库配置
+dp:
+  host: '' # 数据库地址
+  port: 3306 # 数据库端口
+  username: 'root' # 数据库用户名
+  password: '*******' # 数据库密码
+  database: 'demo' # 数据库名称
+  synchronize: true # 是否自动同步数据库
+
+# 文件存储配置
+cos:
+  region: 'ap-shanghai' # 腾讯云COS区域
+  keyId: '' # 腾讯云COS密钥ID
+  keySecret: '' # 腾讯云COS密钥
+  bucket: '' # 腾讯云COS存储桶
+  domain: '' # 腾讯云COS域名
+
+enable:
+  fileLogIng: false # 是否开启文件日志
+  consoleLogIng: true # 是否开启控制台日志
+
+GIT_CI_AUTHORIZE: "1518751112@qq.com" # 自动更新项目认证邮箱 分割符【|】
+
+WX_APP_ID: ''  #小程序APPID
+WX_APP_SECRET: '' #小程序密钥
+
+#redis
+redis:
+  host: '' # redis地址
+  port: 6379 # redis端口
+  password: '' # redis密码
+
+#提醒邮箱
+mail:
+  url: 'https://s2.makegame.top/re/client/v1/user/sendEmail'
+  title: '项目名称'
