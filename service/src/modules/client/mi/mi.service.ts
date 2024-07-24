@@ -17,7 +17,10 @@ export class MiService {
     public async getComponentList() {
         const result = await this.fileService.getCosDirectoryStructure(libraryPath+"/",1);
         componentList = Object.keys(result).map(v=>v.replace(/\/$/,""));
-        return componentList;
+        return {
+            list:componentList,
+            packageUrl:`https://${COS_CONFIG.domain}/${libraryPath}`
+        };
     }
 
     //上传组件包
@@ -33,13 +36,14 @@ export class MiService {
     }
 
     public async deleteCosDirectory() {
-        return this.fileService.deleteCosDirectory(libraryPath+'/image/')
+        return this.fileService.deleteCosDirectory(libraryPath+'/IPimit/')
     }
 
     //获取组件目详情
     public async getComponentDetail(dto:DetComponentDetailDto) {
         if(!componentList.length){
-            componentList = await this.getComponentList();
+            const res = await this.getComponentList();
+            componentList = res.list;
         }
         //判断组件名是否不对
         const list = dto.names.filter(v=>!componentList.includes(v));

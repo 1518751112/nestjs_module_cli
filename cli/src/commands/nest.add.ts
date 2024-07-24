@@ -1,25 +1,13 @@
-import { existsSync, promises as fs } from "fs"
+import {existsSync, promises as fs} from "fs"
 import path from "path"
-import { getConfig } from "@/src/utils/get-config"
-import { getPackageManager } from "@/src/utils/get-package-manager"
-import { handleError } from "@/src/utils/handle-error"
-import { logger } from "@/src/utils/logger"
-import {
-  fetchTree,
-  getItemTargetPath,
-  getRegistryBaseColor,
-  getRegistryIndex,
-  resolveTree,
-} from "@/src/utils/registry"
-import { transform } from "@/src/utils/transformers"
+import {handleError} from "@/src/utils/handle-error"
+import {logger} from "@/src/utils/logger"
 import chalk from "chalk"
-import { Command } from "commander"
-import { execa } from "execa"
+import {Command} from "commander"
 import ora from "ora"
 import prompts from "prompts"
-import { z } from "zod"
-import {getRegistry, installComponent} from "@/src/common/tool";
-import {nestInit} from "@/src/commands/nest.init";
+import {z} from "zod"
+import {getComponentInfo, getRegistry, installComponent} from "@/src/common/tool";
 import {getConfigInfo, NestRawConfigType} from "@/src/common/config";
 
 const addOptionsSchema = z.object({
@@ -68,10 +56,10 @@ export const nestAdd = new Command()
         process.exit(1)
       }
 
-      const registry = await getRegistry(cwd);
+      const {list:registry,packageUrl} = await getRegistry();
 
       let selectedComponents = options.all
-        ? registry.map((entry) => entry.name)
+        ? registry.map((entry) => entry)
         : options.components;
 
       if (!options.components?.length && !options.all) {
@@ -82,11 +70,11 @@ export const nestAdd = new Command()
           hint: "空间可供选择。 A 切换全部。输入即可提交。",
           instructions: false,
           choices: registry.map((entry) => ({
-            title: entry.name,
-            value: entry.name,
+            title: entry,
+            value: entry,
             selected: options.all
               ? true
-              : options.components?.includes(entry.name),
+              : options.components?.includes(entry),
           })),
         })
         selectedComponents = components
@@ -98,17 +86,24 @@ export const nestAdd = new Command()
       }
       //检测组件是否存在
       // @ts-ignore
-      const addComponents = registry.filter(v=>selectedComponents.includes(v.name));
+      const addComponents = registry.filter(v=>selectedComponents.includes(v));
       if(addComponents.length!=selectedComponents.length){
-        logger.error("组件选择错误：",selectedComponents.filter(v=>!addComponents.find(a=>a.name==v)))
+        logger.error("组件选择错误：",selectedComponents.filter(v=>!addComponents.find(a=>a==v)))
         process.exit(0)
       }
       const spinner = ora(`组件安装中...`)?.start()
+      const infos = await getComponentInfo(addComponents);
         //安装组件
         for (let i = 0; i < addComponents.length; i++) {
             const component = addComponents[i];
-            const pathTag = options.path?path.resolve(config.absoluteBaseUrl,options.path):path.resolve(config.absoluteBaseUrl,config.rootDir,component.config?.installDir||"library")
-            await installComponent(pathTag,component,options.overwrite);
+            // const pathTag = options.path?path.resolve(config.absoluteBaseUrl,options.path):path.resolve(config.absoluteBaseUrl,config.rootDir,"library")
+            const pathTag = path.resolve(config.absoluteBaseUrl,config.rootDir)
+            await installComponent({
+              name:component,
+                cwd:pathTag,
+                dirObj:infos[component],
+              resourceUrl:packageUrl
+            },options.overwrite);
         }
       config.components = [...config.components||[],...selectedComponents];
         config.components = Array.from(new Set(config.components))

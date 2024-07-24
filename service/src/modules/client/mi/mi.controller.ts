@@ -65,7 +65,7 @@ export class MiController {
     return this.service.getComponentDetail(dto)
   }
 
-  @ApiOperation({ summary: '获取组件目录' })
+  @ApiOperation({ summary: '组件上传' })
   @OpenAuthorize()
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(

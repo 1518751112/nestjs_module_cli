@@ -1,6 +1,6 @@
 import {z} from "zod";
-import {RawConfig, rawConfigSchema} from "@/src/utils/get-config";
 import {cosmiconfig} from "cosmiconfig";
+
 const explorer = cosmiconfig("components", {
     searchPlaces: ["components.json"],
 })
@@ -30,14 +30,10 @@ export const nestConfigSchema = {
 }
 
 export interface Component{
-    name:string
-    path:string
-    config?:{
-        dependencies?:string[]
-        devDependencies?:string[]
-        //默认安装目录
-        installDir?:string
-    }
+    dependencies?:string[]
+    devDependencies?:string[]
+    //默认安装目录
+    installDir?:string
 
 }
 

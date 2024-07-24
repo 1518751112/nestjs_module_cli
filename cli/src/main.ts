@@ -1,11 +1,12 @@
 #!/usr/bin/env node
-import { diff } from "@/src/commands/diff"
+import {diff} from "@/src/commands/diff"
 // import { init } from "@/src/commands/init"
 // import { add } from "@/src/commands/add"
-import { Command } from "commander"
-import { getPackageInfo } from "./utils/get-package-info"
+import {Command} from "commander"
+import {getPackageInfo} from "./utils/get-package-info"
 import {nestInit} from "@/src/commands/nest.init";
 import {nestAdd} from "@/src/commands/nest.add";
+import {nestUpload} from "@/src/commands/nest.upload";
 
 process.on("SIGINT", () => process.exit(0))
 process.on("SIGTERM", () => process.exit(0))
@@ -21,7 +22,7 @@ const main = async ()=>{
             "display the version number"
         )
 
-    program.addCommand(nestInit).addCommand(nestAdd).addCommand(diff)
+    program.addCommand(nestInit).addCommand(nestAdd).addCommand(diff).addCommand(nestUpload)
     program.parse()
     };
 
