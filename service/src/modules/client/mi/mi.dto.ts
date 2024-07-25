@@ -18,6 +18,8 @@ export class UserLoginDto {
 export class UploadComponentDto extends FileUploadDto{
   @ApiProperty({ type: "string", description: "文件名称" })
   fileName: string;
+  @ApiProperty({ type: "string", description: "密码" })
+  password: string;
 }
 
 

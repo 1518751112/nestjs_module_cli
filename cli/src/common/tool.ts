@@ -182,7 +182,7 @@ function createDirectories(filePath:string,rootPath?:string) {
 }
 
 //通过组件目录上传文件
-export async function uploadComponentDir(dir:string) {
+export async function uploadComponentDir(dir:string,password:string) {
     // 分割路径，获得每一级目录
     const parts= dir.split(path.sep);
     const componentName = parts[parts.length-1];
@@ -194,17 +194,18 @@ export async function uploadComponentDir(dir:string) {
         const fileName = filePath.replace(dir,'');
         // console.log(filePath,`${componentName}${fileName}`)
         logger.info(fileName)
-        await uploadComponent(filePath,`${componentName}/${fileName}`);
+        await uploadComponent(filePath,`${componentName}/${fileName}`,password);
     }
     return componentName
 }
 
 //本地文件上传
-export async function uploadComponent(filePath:string,fileName:string) {
+export async function uploadComponent(filePath:string,fileName:string,password:string) {
     const formData = new FormData();
     //读取文件为 Blob
     const file = fs.readFileSync(filePath);
     formData.append('file', file,"name")
+    formData.append('password', password)
     formData.append('fileName', fileName.replace(/\\/g,'/'))
     try {
         const {data} = await serRequest.post("/mi/upload/component", formData, {
@@ -214,6 +215,9 @@ export async function uploadComponent(filePath:string,fileName:string) {
         })
         return data;
     } catch (error: any) {
+        if(error.response?.data){
+            throw new Error(error.response.data.message)
+        }
         throw new Error(error.message)
     }
 }

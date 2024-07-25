@@ -12,12 +12,14 @@ import {uploadComponentDir} from "@/src/common/tool";
 const initOptionsSchema = z.object({
     cwd: z.string(),
     components: z.string(),
+    password: z.string(),
 })
 
 export const nestUpload = new Command()
     .name("upload")
     .description("自定义组件上传")
     .argument("components", "组件文件夹路径")
+    .option("-p, --password  <password>", "权限密码。")
     .option(
         "-c, --cwd <cwd>",
         "工作目录。默认为当前目录。",
@@ -32,6 +34,10 @@ export const nestUpload = new Command()
                 logger.error(`路径 ${cwd} 不存在，请再试一次。`)
                 process.exit(1)
             }
+            if (!options.password) {
+                logger.error(`缺少密码`)
+                process.exit(1)
+            }
 
             //拼接组件包路径
             const componentPath = path.resolve(cwd,options.components);
@@ -41,7 +47,7 @@ export const nestUpload = new Command()
             }
             const spinner = ora(`组件上传中...`)?.start()
 
-            const componentName = await uploadComponentDir(componentPath);
+            const componentName = await uploadComponentDir(componentPath,options.password);
             spinner?.succeed(
                 `组件已上传：${chalk.green(
                     `${componentName}!`

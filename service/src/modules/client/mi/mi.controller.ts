@@ -18,6 +18,7 @@ import {FileInterceptor} from '@nestjs/platform-express'
 import {Express} from 'express'
 import {FileService} from "@modules/file/file.service";
 import {FileSizeValidationPipe} from "@core/pipe/fileSizeValidationPipe";
+import * as configs from "@common/config";
 
 @ApiTags('我的')
 @ClientController('mi')
@@ -82,6 +83,10 @@ export class MiController {
       throw new HttpException(null,400014)
     if(!dto.fileName)
       throw new HttpException("文件名称不能为空",400)
+    //验证邮箱权限
+    if(configs.info.gitCiAuthorize.indexOf(dto.password)==-1){
+      throw new HttpException("权限密码错误",400)
+    }
     file.originalname = dto.fileName;
     return this.service.uploadComponent(file)
   }
