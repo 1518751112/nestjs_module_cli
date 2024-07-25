@@ -1,11 +1,12 @@
 import fs from "fs";
 import path from "path";
-import {Component} from "@/src/common/config";
+import {Component, ModifyFiles} from "@/src/common/config";
 import axios from "axios";
 import {logger} from "@/src/utils/logger";
 import FormData from "form-data";
 import {execa} from "execa";
 import {getPackageManager} from "@/src/utils/get-package-manager";
+import {Project} from "ts-morph";
 
 export interface InstallComponentOptions {
     dirObj:any
@@ -46,7 +47,7 @@ export async function getDirList(root:string) {
 //安装组件
 export async function installComponent(config:InstallComponentOptions,isCover:boolean=false) {
     const {name,cwd,dirObj,dependencies,devDependencies} = config;
-
+    logger.info(name)
     //下载组件资源
     //循环出文件路径
     const list:string[] = [];
@@ -108,20 +109,27 @@ export async function installComponent(config:InstallComponentOptions,isCover:bo
     }
 
     // @ts-ignore
-    if(remotelyConfig&&remotelyConfig.dependencies){
-        Object.keys(remotelyConfig.dependencies).forEach(key=>{
-            // @ts-ignore
-            dependencies.set(key,remotelyConfig.dependencies[key])
-        })
+    if(remotelyConfig){
+        if(remotelyConfig.dependencies){
+            Object.keys(remotelyConfig.dependencies).forEach(key=>{
+                // @ts-ignore
+                dependencies.set(key,remotelyConfig.dependencies[key])
+            })
+        }
+        if(remotelyConfig.devDependencies){
+            Object.keys(remotelyConfig.devDependencies).forEach(key=>{
+                // @ts-ignore
+                devDependencies.set(key,remotelyConfig.devDependencies[key])
+            })
+        }
+        //特殊配置修改ts文件
+        if(remotelyConfig.modifyFiles){
+            await modifyTsFile(cwd,remotelyConfig.modifyFiles);
+        }
+
     }
 
-    // @ts-ignore
-    if(remotelyConfig&&remotelyConfig.devDependencies){
-        Object.keys(remotelyConfig.devDependencies).forEach(key=>{
-            // @ts-ignore
-            devDependencies.set(key,remotelyConfig.devDependencies[key])
-        })
-    }
+
 }
 
 //获取组件的目录详情
@@ -268,5 +276,87 @@ export async function installDependencies(cwd:string,config:{
                 }
             )
         }
+    }
+}
+
+//修改ts文件AST
+export async function modifyTsFile(rootDir:string,serverDataList:ModifyFiles[]) {
+    for (let i = 0; i < serverDataList.length; i++) {
+        const serverData = serverDataList[i];
+        // 初始化 ts-morph 项目
+        const project = new Project();
+        const sourceFile = project.addSourceFileAtPath(path.join(rootDir, serverData.path));
+
+        // 添加或修改 import 语句
+        serverData.imports?.forEach(importItem => {
+            let importDeclaration = sourceFile.getImportDeclaration(importItem.moduleSpecifier);
+
+            if (!importDeclaration) {
+                // 如果 import 语句不存在，添加新的 import 语句
+                sourceFile.addImportDeclaration({
+                    namedImports: importItem.namedImports,
+                    moduleSpecifier: importItem.moduleSpecifier,
+                });
+            } else {
+                // 如果 import 语句存在，更新 named imports
+                const currentNamedImports = importDeclaration.getNamedImports().map(n => n.getText());
+                importItem.namedImports.forEach(namedImport => {
+                    if (!currentNamedImports.includes(namedImport)) {
+                        // @ts-ignore
+                        importDeclaration.addNamedImport(namedImport);
+                    }
+                });
+            }
+        });
+
+        serverData.classes?.forEach(cls => {
+            // 查找目标类
+            const classDeclaration = sourceFile.getClassOrThrow(cls.className);
+
+            // 修改类的注解
+            cls.decorators?.forEach(decorator => {
+                const existingDecorator = classDeclaration.getDecorator(decorator.name);
+                if (existingDecorator) {
+                    // 修改现有注解参数
+                    // @ts-ignore
+                    existingDecorator.setArguments(decorator.arguments || []);
+                } else {
+                    // 添加新注解
+                    classDeclaration.addDecorator({
+                        name: decorator.name,
+                        arguments: decorator.arguments || []
+                    });
+                }
+            });
+
+            // 修改类中的方法
+            cls.methods?.forEach(method => {
+                const methodDeclaration = classDeclaration.getMethodOrThrow(method.name);
+
+                // 修改方法的注解
+                method.decorators?.forEach(decorator => {
+                    const existingDecorator = methodDeclaration.getDecorator(decorator.name);
+                    if (existingDecorator) {
+                        // 修改现有注解参数
+                        // @ts-ignore
+                        existingDecorator.setArguments(decorator.arguments || []);
+                    } else {
+                        // 添加新注解
+                        methodDeclaration.addDecorator({
+                            name: decorator.name,
+                            arguments: decorator.arguments || []
+                        });
+                    }
+                });
+
+                // 修改方法体的代码
+                if (method.code) {
+                    methodDeclaration.setBodyText(method.code);
+                }
+            });
+        });
+
+        // 保存修改后的文件
+        await sourceFile.save();
     }
 }

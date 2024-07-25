@@ -110,9 +110,9 @@ export const nestAdd = new Command()
             },options.overwrite);
         }
         //安装依赖
-      spinner?.start(`安装依赖...`)
+      logger.info(`安装依赖`)
       await installDependencies(cwd,{dependencies,devDependencies})
-      spinner?.start(`更新配置文件...`)
+      logger.info(`更新配置文件`)
       config.components = [...config.components||[],...selectedComponents];
         config.components = Array.from(new Set(config.components))
         //更新配置文件

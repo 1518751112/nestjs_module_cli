@@ -59,7 +59,7 @@ export interface ModifyFiles {
     path: string
     //修改内容
     imports?: ModifyFilesImport[];
-    classes: ModifyFilesClass[];
+    classes?: ModifyFilesClass[];
 }
 
 export interface Component{

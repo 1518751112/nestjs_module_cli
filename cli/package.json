@@ -14,7 +14,7 @@
     "type": "git",
     "url": "git+https://github.com/1518751112/service_module.git"
   },
-  "keywords": [],
+  "keywords": ["nestjs","components","tool"],
   "author": "",
   "license": "ISC",
   "bugs": {
