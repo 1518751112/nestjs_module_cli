@@ -29,12 +29,46 @@ export const nestConfigSchema = {
     "model": "/model/*"
 }
 
+export type DependenciesType = {
+    [key:string]: string
+}
+
+export interface ModifyFilesImport {
+    namedImports: string[];
+    moduleSpecifier: string;
+}
+
+interface ModDecorator {
+    name: string;
+    arguments?: string[];
+}
+
+interface ModMethod {
+    name: string;
+    decorators?: ModDecorator[];
+    code?: string;
+}
+
+interface ModifyFilesClass {
+    className: string;
+    decorators?: ModDecorator[];
+    methods?: ModMethod[];
+}
+export interface ModifyFiles {
+    //文件路径 [rootPath]/[path]
+    path: string
+    //修改内容
+    imports?: ModifyFilesImport[];
+    classes: ModifyFilesClass[];
+}
+
 export interface Component{
-    dependencies?:string[]
-    devDependencies?:string[]
+    dependencies?:DependenciesType
+    devDependencies?:DependenciesType
     //默认安装目录
     installDir?:string
-
+    //修改指定文件
+    modifyFiles?:ModifyFiles[]
 }
 
 export async function getConfigInfo(cwd: string): Promise<any | null> {

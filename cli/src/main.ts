@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-import {diff} from "@/src/commands/diff"
 // import { init } from "@/src/commands/init"
 // import { add } from "@/src/commands/add"
 import {Command} from "commander"
@@ -22,7 +21,7 @@ const main = async ()=>{
             "display the version number"
         )
 
-    program.addCommand(nestInit).addCommand(nestAdd).addCommand(diff).addCommand(nestUpload)
+    program.addCommand(nestInit).addCommand(nestAdd).addCommand(nestUpload)/*.addCommand(diff)*/
     program.parse()
     };
 

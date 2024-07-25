@@ -7,7 +7,7 @@ import {Command} from "commander"
 import ora from "ora"
 import prompts from "prompts"
 import {z} from "zod"
-import {getComponentInfo, getRegistry, installComponent} from "@/src/common/tool";
+import {getComponentInfo, getRegistry, installComponent, installDependencies} from "@/src/common/tool";
 import {getConfigInfo, NestRawConfigType} from "@/src/common/config";
 
 const addOptionsSchema = z.object({
@@ -91,8 +91,10 @@ export const nestAdd = new Command()
         logger.error("组件选择错误：",selectedComponents.filter(v=>!addComponents.find(a=>a==v)))
         process.exit(0)
       }
-      const spinner = ora(`组件安装中...`)?.start()
+      const spinner = ora(`库安装中...`)?.start()
       const infos = await getComponentInfo(addComponents);
+      const dependencies = new Map<string,string>();
+      const devDependencies = new Map<string,string>();
         //安装组件
         for (let i = 0; i < addComponents.length; i++) {
             const component = addComponents[i];
@@ -102,9 +104,15 @@ export const nestAdd = new Command()
               name:component,
                 cwd:pathTag,
                 dirObj:infos[component],
-              resourceUrl:packageUrl
+              resourceUrl:packageUrl,
+              dependencies,
+              devDependencies
             },options.overwrite);
         }
+        //安装依赖
+      spinner?.start(`安装依赖...`)
+      await installDependencies(cwd,{dependencies,devDependencies})
+      spinner?.start(`更新配置文件...`)
       config.components = [...config.components||[],...selectedComponents];
         config.components = Array.from(new Set(config.components))
         //更新配置文件

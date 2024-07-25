@@ -4,12 +4,16 @@ import {Component} from "@/src/common/config";
 import axios from "axios";
 import {logger} from "@/src/utils/logger";
 import FormData from "form-data";
+import {execa} from "execa";
+import {getPackageManager} from "@/src/utils/get-package-manager";
 
 export interface InstallComponentOptions {
     dirObj:any
     cwd:string
     name:string
     resourceUrl:string
+    dependencies:Map<string,string>
+    devDependencies:Map<string,string>
 }
 
 
@@ -41,7 +45,7 @@ export async function getDirList(root:string) {
 
 //安装组件
 export async function installComponent(config:InstallComponentOptions,isCover:boolean=false) {
-    const {name,cwd,dirObj} = config;
+    const {name,cwd,dirObj,dependencies,devDependencies} = config;
 
     //下载组件资源
     //循环出文件路径
@@ -101,6 +105,22 @@ export async function installComponent(config:InstallComponentOptions,isCover:bo
             writer.on('finish', resolve);
             writer.on('error', reject);
         });
+    }
+
+    // @ts-ignore
+    if(remotelyConfig&&remotelyConfig.dependencies){
+        Object.keys(remotelyConfig.dependencies).forEach(key=>{
+            // @ts-ignore
+            dependencies.set(key,remotelyConfig.dependencies[key])
+        })
+    }
+
+    // @ts-ignore
+    if(remotelyConfig&&remotelyConfig.devDependencies){
+        Object.keys(remotelyConfig.devDependencies).forEach(key=>{
+            // @ts-ignore
+            devDependencies.set(key,remotelyConfig.devDependencies[key])
+        })
     }
 }
 
@@ -203,4 +223,50 @@ export function browserFiles(folder:string, list:string[]) {
         }
     });
     return list;
+}
+//安装依赖
+export async function installDependencies(cwd:string,config:{
+    dependencies?:Map<string,string>,devDependencies?:Map<string,string>
+}) {
+    const {dependencies,devDependencies} = config
+    if(dependencies){
+        let str = "";
+        dependencies.forEach((value,key)=>{
+            str+=`${key}@${value.replace(/^\^/,"")} `
+        })
+        if(str){
+            const packageManager = await getPackageManager(cwd)
+            await execa(
+                packageManager,
+                [
+                    packageManager === "npm" ? "install" : "add",
+                    ...str.split(" ")
+                ],
+                {
+                    cwd,
+                }
+            )
+        }
+
+    }
+    if(devDependencies){
+        let str = "";
+        devDependencies.forEach((value,key)=>{
+            str+=`${key}@${value.replace(/^\^/,"")} `
+        })
+        if(str){
+            const packageManager = await getPackageManager(cwd)
+            await execa(
+                packageManager,
+                [
+                    packageManager === "npm" ? "install" : "add",
+                    "-D",
+                    ...str.split(" ")
+                ],
+                {
+                    cwd,
+                }
+            )
+        }
+    }
 }
