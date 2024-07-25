@@ -1,5 +1,5 @@
 {
-  "name": "dep-tool",
+  "name": "depbox",
   "version": "1.0.1",
   "description": "",
   "exports": "./dist/main.js",
@@ -7,15 +7,21 @@
   "type": "module",
   "scripts": {
     "build": "tsup",
-    "dev": "tsup --watch",
-    "start": "node dist/main.js"
+    "build:ts": "tsc",
+    "dev": " tsup --watch",
+    "start": "node dist/main.js",
+    "start:dev": "cross-env COMPONENTS_REGISTRY_URL=http://localhost:10333 node dist/main.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/1518751112/service_module.git"
   },
-  "keywords": ["nestjs","components","tool"],
-  "author": "",
+  "keywords": [
+    "nestjs",
+    "components",
+    "tool"
+  ],
+  "author": "tg1518",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/1518751112/service_module/issues"
@@ -55,6 +61,7 @@
     "@types/prompts": "^2.4.9",
     "ts-node": "^10.9.2",
     "type-fest": "^4.23.0",
-    "typescript": "^4.9.5"
+    "typescript": "^4.9.5",
+    "cross-env": "^7.0.3"
   }
 }

@@ -20,7 +20,7 @@ export interface InstallComponentOptions {
 
 //请求服务器数据
 export const serRequest = axios.create({
-    baseURL: 'https://s2.makegame.top/module/client/',
+    baseURL: process.env.COMPONENTS_REGISTRY_URL?process.env.COMPONENTS_REGISTRY_URL+"/client/":'https://s2.makegame.top/module/client/',
     timeout: 6000,
 })
 export async function getRegistry() {

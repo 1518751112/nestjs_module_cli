@@ -16,10 +16,10 @@ npm install || yarn install
 npm run dev
 
 # 初始化
-npx dep-tool init
+npx depbox init
 
 # 安装依赖
-npx dep-tool add [组件名或空]
+npx depbox add [组件名或空]
 
 ```
 

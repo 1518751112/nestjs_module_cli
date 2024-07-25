@@ -14,7 +14,7 @@ const main = async ()=>{
     const packageInfo = await getPackageInfo();
     const program = new Command();
      program
-        .name("dep-tool")
+        .name("depbox")
         .description("将组件和依赖项添加到您的项目中")
         .version(
             packageInfo.version || "1.0.0",
