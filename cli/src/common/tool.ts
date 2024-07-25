@@ -20,7 +20,7 @@ export interface InstallComponentOptions {
 
 //请求服务器数据
 export const serRequest = axios.create({
-    baseURL: 'http://127.0.0.1:10333/client/',
+    baseURL: 'https://s2.makegame.top/module/client/',
     timeout: 6000,
 })
 export async function getRegistry() {
@@ -362,5 +362,21 @@ export async function modifyTsFile(rootDir:string,serverDataList:ModifyFiles[]) 
 
         // 保存修改后的文件
         await sourceFile.save();
+    }
+}
+
+//删除线上组件
+export async function removeComponent(name:string,password:string) {
+    try {
+        const {data} = await serRequest.post("/mi/component/remove", {
+            name,
+            password
+        })
+        return data;
+    } catch (error: any) {
+        if(error.response?.data){
+            throw new Error(error.response.data.message)
+        }
+        throw new Error(error.message)
     }
 }

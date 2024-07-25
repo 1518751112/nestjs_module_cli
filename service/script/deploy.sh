@@ -2,4 +2,4 @@ cd ..
 git pull
 npm i
 npm run build
-pm2 restart debug
+pm2 restart serviceModule

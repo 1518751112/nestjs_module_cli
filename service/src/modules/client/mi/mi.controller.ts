@@ -12,7 +12,7 @@ import {
   UseInterceptors
 } from '@nestjs/common'
 import {ApiBody, ApiConsumes, ApiOperation, ApiQuery, ApiTags} from '@nestjs/swagger'
-import {DetComponentDetailDto, UploadComponentDto} from './mi.dto'
+import {DeleteCosDirectoryDto, DetComponentDetailDto, UploadComponentDto} from './mi.dto'
 import {MiService} from './mi.service'
 import {FileInterceptor} from '@nestjs/platform-express'
 import {Express} from 'express'
@@ -64,6 +64,13 @@ export class MiController {
   @HttpCode(HttpStatus.OK)
   async getComponentDetail(@Body() dto:DetComponentDetailDto) {
     return this.service.getComponentDetail(dto)
+  }
+  @ApiOperation({ summary: '删除组件' })
+  @OpenAuthorize()
+  @Post('component/remove')
+  @HttpCode(HttpStatus.OK)
+  async deleteCosDirectory(@Body() dto:DeleteCosDirectoryDto) {
+    return this.service.deleteCosDirectory(dto)
   }
 
   @ApiOperation({ summary: '组件上传' })

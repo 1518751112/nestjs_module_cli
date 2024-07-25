@@ -7,7 +7,7 @@
   "license": "",
   "scripts": {
     "build": "nest build",
-    "prod": "cross-env RUN_ENV=config.yaml pm2 start dist/main.js --name xx_separate",
+    "prod": "cross-env RUN_ENV=config.yaml pm2 start dist/main.js --name serviceModule",
     "test": "pm2 start dist/main.js --name xx_debug",
     "dev": "nest start --watch",
     "debug": "nest start --debug --watch"

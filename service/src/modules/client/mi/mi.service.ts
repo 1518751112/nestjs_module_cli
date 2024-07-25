@@ -1,6 +1,7 @@
 import {Injectable} from '@nestjs/common'
-import {DetComponentDetailDto} from './mi.dto'
+import {DeleteCosDirectoryDto, DetComponentDetailDto} from './mi.dto'
 import {FileService} from "@modules/file/file.service";
+import * as configs from "@common/config";
 import {COS_CONFIG, info} from "@common/config";
 import {Aide} from "@library/utils/aide";
 import {join} from "path";
@@ -35,8 +36,18 @@ export class MiService {
         return result;
     }
 
-    public async deleteCosDirectory() {
-        return this.fileService.deleteCosDirectory(libraryPath+'/IPimit/')
+    public async deleteCosDirectory(dto:DeleteCosDirectoryDto) {
+        //验证邮箱权限
+        if(configs.info.gitCiAuthorize.indexOf(dto.password)==-1) {
+            Aide.throwException(400,"权限密码错误")
+        }
+        if(!componentList.length){
+            const res = await this.getComponentList();
+            componentList = res.list;
+        }
+        //判断组件名是否不对
+        if(!componentList.includes(dto.name))Aide.throwException(400,'组件不存在：'+dto.name)
+        return this.fileService.deleteCosDirectory(libraryPath+`/${dto.name}/`)
     }
 
     //获取组件目详情

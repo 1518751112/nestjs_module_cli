@@ -28,3 +28,13 @@ export class DetComponentDetailDto{
   @IsString({message:"组件名称需要是字符串",each:true})
   names: string[];
 }
+
+export class DeleteCosDirectoryDto{
+  @ApiProperty({required: true, description: '组件名称', type: String})
+  @IsString({message:"组件名称需要是字符串"})
+  name: string;
+
+  @ApiProperty({ description: "密码", type: String })
+  @IsString({message:"密码需要是字符串"})
+  password: string;
+}
